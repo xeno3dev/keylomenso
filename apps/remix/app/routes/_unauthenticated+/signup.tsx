@@ -1,26 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { redirect } from 'react-router';
-
-import { env } from '@documenso/lib/utils/env';
-
-import type { Route } from './+types/signup';
 
 export function meta() {
   return [{ title: 'Keylo – Vendor Platform' }];
-}
-
-/**
- * If signup is NOT explicitly disabled, redirect to signin.
- * To show this page: set NEXT_PUBLIC_DISABLE_SIGNUP=true in your env.
- */
-export function loader({ request: _request }: Route.LoaderArgs) {
-  const NEXT_PUBLIC_DISABLE_SIGNUP = env('NEXT_PUBLIC_DISABLE_SIGNUP');
-
-  if (NEXT_PUBLIC_DISABLE_SIGNUP !== 'true') {
-    throw redirect('/signin');
-  }
-
-  return {};
 }
 
 export default function SignupUnavailable() {
@@ -52,7 +33,6 @@ export default function SignupUnavailable() {
           font-family: 'Geist Variable', 'Geist', sans-serif;
         }
 
-        /* ── blobs ── */
         .su-blob-bg {
           position: fixed;
           inset: 0;
@@ -92,7 +72,6 @@ export default function SignupUnavailable() {
           66%       { transform: translate(-20px, 30px) scale(0.97); }
         }
 
-        /* cursor glow */
         .su-cursor-blob {
           position: fixed;
           width: 340px; height: 340px;
@@ -105,7 +84,6 @@ export default function SignupUnavailable() {
           z-index: 0;
         }
 
-        /* grid noise */
         .su-noise {
           position: fixed;
           inset: 0;
@@ -116,7 +94,6 @@ export default function SignupUnavailable() {
           pointer-events: none;
         }
 
-        /* ── card ── */
         .su-card-wrapper { position: relative; z-index: 2; }
 
         .su-card-border {
@@ -156,14 +133,12 @@ export default function SignupUnavailable() {
           background: linear-gradient(90deg, transparent, rgba(93,202,165,0.4), transparent);
         }
 
-        /* logo */
         .su-logo {
           height: 48px;
           width: auto;
           margin-bottom: 2.5rem;
         }
 
-        /* badge */
         .su-badge {
           display: inline-flex;
           align-items: center;
@@ -190,7 +165,6 @@ export default function SignupUnavailable() {
           50%       { opacity: 0.5; transform: scale(0.8); }
         }
 
-        /* text */
         .su-headline {
           font-size: 1.65rem;
           font-weight: 700;
@@ -212,7 +186,6 @@ export default function SignupUnavailable() {
           font-weight: 400;
         }
 
-        /* domain pill */
         .su-domain {
           display: inline-flex;
           align-items: center;
@@ -239,7 +212,6 @@ export default function SignupUnavailable() {
           margin-bottom: 2rem;
         }
 
-        /* ── Uiverse button — Keylo-tinted ── */
         .su-button {
           cursor: pointer;
           font-size: 1rem;
@@ -312,7 +284,6 @@ export default function SignupUnavailable() {
       `}</style>
 
       <div className="su-root">
-        {/* background blobs */}
         <div className="su-blob-bg">
           <div className="su-blob su-blob-1" />
           <div className="su-blob su-blob-2" />
@@ -321,19 +292,12 @@ export default function SignupUnavailable() {
         <div className="su-noise" />
         <div className="su-cursor-blob" ref={cursorRef} />
 
-        {/* card */}
         <div className="su-card-wrapper">
           <div className="su-card-border">
             <div className="su-card">
 
-              {/* logo – drop keylo_white.svg into apps/remix/public/ */}
-              <img
-                src="/keylo_white.svg"
-                alt="Keylo"
-                className="su-logo"
-              />
+              <img src="/keylo_white.svg" alt="Keylo" className="su-logo" />
 
-              {/* badge */}
               <div className="su-badge">
                 <div className="su-badge-dot" />
                 Now accepting vendors
