@@ -11,11 +11,6 @@ import type { PartialAccount } from '../server/lib/utils/get-accounts';
 import type { ActiveSession } from '../server/lib/utils/get-session';
 import { handleSignInRedirect } from '../server/lib/utils/redirect';
 import type {
-  TDisableTwoFactorRequestSchema,
-  TEnableTwoFactorRequestSchema,
-  TViewTwoFactorRecoveryCodesRequestSchema,
-} from '../server/routes/two-factor.types';
-import type {
   TForgotPasswordSchema,
   TResendVerifyEmailSchema,
   TResetPasswordSchema,
@@ -212,51 +207,6 @@ export class AuthClient {
 
     verifyEmail: async (data: TVerifyEmailSchema) => {
       const response = await this.client['email-password']['verify-email'].$post({ json: data });
-
-      if (!response.ok) {
-        const error = await response.json();
-
-        throw AppError.parseError(error);
-      }
-
-      return response.json();
-    },
-  };
-
-  public twoFactor = {
-    setup: async () => {
-      const response = await this.client['two-factor'].setup.$post();
-
-      if (!response.ok) {
-        const error = await response.json();
-
-        throw AppError.parseError(error);
-      }
-
-      return response.json();
-    },
-    enable: async (data: TEnableTwoFactorRequestSchema) => {
-      const response = await this.client['two-factor'].enable.$post({ json: data });
-
-      if (!response.ok) {
-        const error = await response.json();
-
-        throw AppError.parseError(error);
-      }
-
-      return response.json();
-    },
-    disable: async (data: TDisableTwoFactorRequestSchema) => {
-      const response = await this.client['two-factor'].disable.$post({ json: data });
-
-      if (!response.ok) {
-        const error = await response.json();
-
-        throw AppError.parseError(error);
-      }
-    },
-    viewRecoveryCodes: async (data: TViewTwoFactorRecoveryCodesRequestSchema) => {
-      const response = await this.client['two-factor']['view-recovery-codes'].$post({ json: data });
 
       if (!response.ok) {
         const error = await response.json();

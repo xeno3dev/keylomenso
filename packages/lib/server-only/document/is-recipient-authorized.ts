@@ -5,8 +5,6 @@ import { match } from 'ts-pattern';
 
 import { prisma } from '@documenso/prisma';
 
-import { validateTwoFactorTokenFromEmail } from '../2fa/email/validate-2fa-token-from-email';
-import { verifyTwoFactorAuthenticationToken } from '../2fa/verify-2fa-token';
 import { verifyPassword } from '../2fa/verify-password';
 import { AppError, AppErrorCode } from '../../errors/app-error';
 import type { TDocumentAuth, TDocumentAuthMethods } from '../../types/document-auth';
@@ -16,8 +14,7 @@ import { getAuthenticatorOptions } from '../../utils/authenticator';
 import { extractDocumentAuthMethods } from '../../utils/document-auth';
 
 type IsRecipientAuthorizedOptions = {
-  // !: Probably find a better name than 'ACCESS_2FA' if requirements change.
-  type: 'ACCESS' | 'ACCESS_2FA' | 'ACTION';
+  type: 'ACCESS' | 'ACTION';
   documentAuthOptions: Envelope['authOptions'];
   recipient: Pick<Recipient, 'authOptions' | 'email' | 'envelopeId'>;
 
@@ -66,7 +63,6 @@ export const isRecipientAuthorized = async ({
 
   const authMethods: TDocumentAuth[] = match(type)
     .with('ACCESS', () => derivedRecipientAccessAuth)
-    .with('ACCESS_2FA', () => derivedRecipientAccessAuth)
     .with('ACTION', () => derivedRecipientActionAuth)
     .exhaustive();
 
@@ -75,11 +71,6 @@ export const isRecipientAuthorized = async ({
     authMethods.length === 0 ||
     authMethods.some((method) => method === DocumentAuth.EXPLICIT_NONE)
   ) {
-    return true;
-  }
-
-  // Early true return for ACCESS auth if all methods are 2FA since validation happens in ACCESS_2FA.
-  if (type === 'ACCESS' && authMethods.every((method) => method === DocumentAuth.TWO_FACTOR_AUTH)) {
     return true;
   }
 
@@ -118,44 +109,6 @@ export const isRecipientAuthorized = async ({
         userId,
         authenticationResponse,
         tokenReference,
-      });
-    })
-    .with({ type: DocumentAuth.TWO_FACTOR_AUTH }, async ({ token, method }) => {
-      if (type === 'ACCESS') {
-        return true;
-      }
-
-      if (type === 'ACCESS_2FA' && method === 'email') {
-        return await validateTwoFactorTokenFromEmail({
-          envelopeId: recipient.envelopeId,
-          email: recipient.email,
-          code: token,
-          window: 10, // 5 minutes worth of tokens
-        });
-      }
-
-      if (!userId) {
-        return false;
-      }
-
-      const user = await prisma.user.findFirst({
-        where: {
-          id: userId,
-        },
-      });
-
-      // Should not be possible.
-      if (!user) {
-        throw new AppError(AppErrorCode.NOT_FOUND, {
-          message: 'User not found',
-        });
-      }
-
-      // For ACTION auth or authenticator method, use TOTP
-      return await verifyTwoFactorAuthenticationToken({
-        user,
-        totpCode: token,
-        window: 10, // 5 minutes worth of tokens
       });
     })
     .with({ type: DocumentAuth.PASSWORD }, async ({ password }) => {

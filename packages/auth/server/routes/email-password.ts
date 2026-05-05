@@ -10,12 +10,6 @@ import { isEmailDomainAllowedForSignup } from '@documenso/lib/constants/auth';
 import { EMAIL_VERIFICATION_STATE } from '@documenso/lib/constants/email';
 import { AppError } from '@documenso/lib/errors/app-error';
 import { jobsClient } from '@documenso/lib/jobs/client';
-import { disableTwoFactorAuthentication } from '@documenso/lib/server-only/2fa/disable-2fa';
-import { enableTwoFactorAuthentication } from '@documenso/lib/server-only/2fa/enable-2fa';
-import { isTwoFactorAuthenticationEnabled } from '@documenso/lib/server-only/2fa/is-2fa-availble';
-import { setupTwoFactorAuthentication } from '@documenso/lib/server-only/2fa/setup-2fa';
-import { validateTwoFactorAuthentication } from '@documenso/lib/server-only/2fa/validate-2fa';
-import { viewBackupCodes } from '@documenso/lib/server-only/2fa/view-backup-codes';
 import { verifyCaptchaToken } from '@documenso/lib/server-only/captcha/verify-captcha';
 import { rateLimitResponse } from '@documenso/lib/server-only/rate-limit/rate-limit-middleware';
 import {
@@ -61,7 +55,7 @@ export const emailPasswordRoute = new Hono<HonoAuthContext>()
   .post('/authorize', sValidator('json', ZSignInSchema), async (c) => {
     const requestMetadata = c.get('requestMetadata');
 
-    const { email, password, totpCode, backupCode, csrfToken, captchaToken } = c.req.valid('json');
+    const { email, password, csrfToken, captchaToken } = c.req.valid('json');
 
     const loginLimitResult = await loginRateLimit.check({
       ip: requestMetadata.ipAddress ?? 'unknown',
@@ -124,29 +118,6 @@ export const emailPasswordRoute = new Hono<HonoAuthContext>()
       throw new AppError(AuthenticationErrorCode.InvalidCredentials, {
         message: 'Invalid email or password',
       });
-    }
-
-    const is2faEnabled = isTwoFactorAuthenticationEnabled({ user });
-
-    if (is2faEnabled) {
-      const isValid = await validateTwoFactorAuthentication({
-        backupCode,
-        totpCode,
-        user,
-      });
-
-      if (!isValid) {
-        await prisma.userSecurityAuditLog.create({
-          data: {
-            userId: user.id,
-            ipAddress: requestMetadata.ipAddress,
-            userAgent: requestMetadata.userAgent,
-            type: UserSecurityAuditLogType.SIGN_IN_2FA_FAIL,
-          },
-        });
-
-        throw new AppError(AuthenticationErrorCode.InvalidTwoFactorCode);
-      }
     }
 
     if (!user.emailVerified) {
@@ -429,155 +400,3 @@ export const emailPasswordRoute = new Hono<HonoAuthContext>()
 
     return c.text('OK', 201);
   })
-  /**
-   * Setup two factor authentication.
-   */
-  .post('/2fa/setup', async (c) => {
-    const { user } = await getSession(c);
-
-    const result = await setupTwoFactorAuthentication({
-      user,
-    });
-
-    return c.json({
-      success: true,
-      secret: result.secret,
-      uri: result.uri,
-    });
-  })
-  /**
-   * Enable two factor authentication.
-   */
-  .post(
-    '/2fa/enable',
-    sValidator(
-      'json',
-      z.object({
-        code: z.string(),
-      }),
-    ),
-    async (c) => {
-      const requestMetadata = c.get('requestMetadata');
-
-      const { user: sessionUser } = await getSession(c);
-
-      const user = await prisma.user.findFirst({
-        where: {
-          id: sessionUser.id,
-        },
-        select: {
-          id: true,
-          email: true,
-          twoFactorEnabled: true,
-          twoFactorSecret: true,
-        },
-      });
-
-      if (!user) {
-        throw new AppError(AuthenticationErrorCode.InvalidRequest);
-      }
-
-      const { code } = c.req.valid('json');
-
-      const result = await enableTwoFactorAuthentication({
-        user,
-        code,
-        requestMetadata,
-      });
-
-      return c.json({
-        success: true,
-        recoveryCodes: result.recoveryCodes,
-      });
-    },
-  )
-  /**
-   * Disable two factor authentication.
-   */
-  .post(
-    '/2fa/disable',
-    sValidator(
-      'json',
-      z.object({
-        totpCode: z.string().trim().optional(),
-        backupCode: z.string().trim().optional(),
-      }),
-    ),
-    async (c) => {
-      const requestMetadata = c.get('requestMetadata');
-
-      const { user: sessionUser } = await getSession(c);
-
-      const user = await prisma.user.findFirst({
-        where: {
-          id: sessionUser.id,
-        },
-        select: {
-          id: true,
-          email: true,
-          twoFactorEnabled: true,
-          twoFactorSecret: true,
-          twoFactorBackupCodes: true,
-        },
-      });
-
-      if (!user) {
-        throw new AppError(AuthenticationErrorCode.InvalidRequest);
-      }
-
-      const { totpCode, backupCode } = c.req.valid('json');
-
-      await disableTwoFactorAuthentication({
-        user,
-        totpCode,
-        backupCode,
-        requestMetadata,
-      });
-
-      return c.text('OK', 201);
-    },
-  )
-  /**
-   * View backup codes.
-   */
-  .post(
-    '/2fa/view-recovery-codes',
-    sValidator(
-      'json',
-      z.object({
-        token: z.string(),
-      }),
-    ),
-    async (c) => {
-      const { user: sessionUser } = await getSession(c);
-
-      const user = await prisma.user.findFirst({
-        where: {
-          id: sessionUser.id,
-        },
-        select: {
-          id: true,
-          email: true,
-          twoFactorEnabled: true,
-          twoFactorSecret: true,
-          twoFactorBackupCodes: true,
-        },
-      });
-
-      if (!user) {
-        throw new AppError(AuthenticationErrorCode.InvalidRequest);
-      }
-
-      const { token } = c.req.valid('json');
-
-      const backupCodes = await viewBackupCodes({
-        user,
-        token,
-      });
-
-      return c.json({
-        success: true,
-        backupCodes,
-      });
-    },
-  );

@@ -8,7 +8,6 @@ import { ZAuthenticationResponseJSONSchema } from './webauthn';
 export const ZDocumentAuthTypesSchema = z.enum([
   'ACCOUNT',
   'PASSKEY',
-  'TWO_FACTOR_AUTH',
   'PASSWORD',
   'EXPLICIT_NONE',
 ]);
@@ -34,12 +33,6 @@ const ZDocumentAuthPasswordSchema = z.object({
   password: z.string().min(1),
 });
 
-const ZDocumentAuth2FASchema = z.object({
-  type: z.literal(DocumentAuth.TWO_FACTOR_AUTH),
-  token: z.string().min(4).max(10),
-  method: z.enum(['email', 'authenticator']).default('authenticator').optional(),
-});
-
 /**
  * All the document auth methods for both accessing and actioning.
  */
@@ -47,7 +40,6 @@ export const ZDocumentAuthMethodsSchema = z.discriminatedUnion('type', [
   ZDocumentAuthAccountSchema,
   ZDocumentAuthExplicitNoneSchema,
   ZDocumentAuthPasskeySchema,
-  ZDocumentAuth2FASchema,
   ZDocumentAuthPasswordSchema,
 ]);
 
@@ -58,10 +50,9 @@ export const ZDocumentAuthMethodsSchema = z.discriminatedUnion('type', [
  */
 export const ZDocumentAccessAuthSchema = z.discriminatedUnion('type', [
   ZDocumentAuthAccountSchema,
-  ZDocumentAuth2FASchema,
 ]);
 export const ZDocumentAccessAuthTypesSchema = z
-  .enum([DocumentAuth.ACCOUNT, DocumentAuth.TWO_FACTOR_AUTH])
+  .enum([DocumentAuth.ACCOUNT])
   .describe('The type of authentication required for the recipient to access the document.');
 
 /**
@@ -72,14 +63,12 @@ export const ZDocumentAccessAuthTypesSchema = z
 export const ZDocumentActionAuthSchema = z.discriminatedUnion('type', [
   ZDocumentAuthAccountSchema,
   ZDocumentAuthPasskeySchema,
-  ZDocumentAuth2FASchema,
   ZDocumentAuthPasswordSchema,
 ]);
 export const ZDocumentActionAuthTypesSchema = z
   .enum([
     DocumentAuth.ACCOUNT,
     DocumentAuth.PASSKEY,
-    DocumentAuth.TWO_FACTOR_AUTH,
     DocumentAuth.PASSWORD,
   ])
   .describe(
@@ -93,10 +82,9 @@ export const ZDocumentActionAuthTypesSchema = z
  */
 export const ZRecipientAccessAuthSchema = z.discriminatedUnion('type', [
   ZDocumentAuthAccountSchema,
-  ZDocumentAuth2FASchema,
 ]);
 export const ZRecipientAccessAuthTypesSchema = z
-  .enum([DocumentAuth.ACCOUNT, DocumentAuth.TWO_FACTOR_AUTH])
+  .enum([DocumentAuth.ACCOUNT])
   .describe('The type of authentication required for the recipient to access the document.');
 
 /**
@@ -107,7 +95,6 @@ export const ZRecipientAccessAuthTypesSchema = z
 export const ZRecipientActionAuthSchema = z.discriminatedUnion('type', [
   ZDocumentAuthAccountSchema,
   ZDocumentAuthPasskeySchema,
-  ZDocumentAuth2FASchema,
   ZDocumentAuthPasswordSchema,
   ZDocumentAuthExplicitNoneSchema,
 ]);
@@ -115,7 +102,6 @@ export const ZRecipientActionAuthTypesSchema = z
   .enum([
     DocumentAuth.ACCOUNT,
     DocumentAuth.PASSKEY,
-    DocumentAuth.TWO_FACTOR_AUTH,
     DocumentAuth.PASSWORD,
     DocumentAuth.EXPLICIT_NONE,
   ])

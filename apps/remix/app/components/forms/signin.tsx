@@ -13,7 +13,6 @@ import { useForm } from 'react-hook-form';
 import { FaIdCardClip } from 'react-icons/fa6';
 import { FcGoogle } from 'react-icons/fc';
 import { Link, useNavigate } from 'react-router';
-import { match } from 'ts-pattern';
 import { z } from 'zod';
 
 import { authClient } from '@documenso/auth/client';
@@ -42,7 +41,6 @@ import {
 } from '@documenso/ui/primitives/form/form';
 import { Input } from '@documenso/ui/primitives/input';
 import { PasswordInput } from '@documenso/ui/primitives/password-input';
-import { PinInput, PinInputGroup, PinInputSlot } from '@documenso/ui/primitives/pin-input';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 
 const CommonErrorMessages: Record<string, MessageDescriptor> = {
@@ -60,15 +58,6 @@ const handleFallbackErrorMessages = (code: string) => {
 };
 
 const LOGIN_REDIRECT_PATH = '/';
-
-export const ZSignInFormSchema = z.object({
-  email: zEmail().min(1),
-  password: ZCurrentPasswordSchema,
-  totpCode: z.string().trim().optional(),
-  backupCode: z.string().trim().optional(),
-});
-
-export type TSignInFormSchema = z.infer<typeof ZSignInFormSchema>;
 
 export type SignInFormProps = {
   className?: string;
@@ -94,19 +83,12 @@ export const SignInForm = ({
 
   const navigate = useNavigate();
 
-  const [isTwoFactorAuthenticationDialogOpen, setIsTwoFactorAuthenticationDialogOpen] =
-    useState(false);
   const [isEmbeddedRedirect, setIsEmbeddedRedirect] = useState(false);
-
-  const [twoFactorAuthenticationMethod, setTwoFactorAuthenticationMethod] = useState<
-    'totp' | 'backup'
-  >('totp');
 
   const hasSocialAuthEnabled = isGoogleSSOEnabled || isMicrosoftSSOEnabled || isOIDCSSOEnabled;
 
   const turnstileSiteKey = env('NEXT_PUBLIC_TURNSTILE_SITE_KEY');
   const turnstileRef = useRef<TurnstileInstance>(null);
-  const twoFactorTurnstileRef = useRef<TurnstileInstance>(null);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const [isPasskeyLoading, setIsPasskeyLoading] = useState(false);
@@ -134,34 +116,11 @@ export const SignInForm = ({
     values: {
       email: initialEmail ?? '',
       password: '',
-      totpCode: '',
-      backupCode: '',
     },
     resolver: zodResolver(ZSignInFormSchema),
   });
 
   const isSubmitting = form.formState.isSubmitting;
-
-  const onCloseTwoFactorAuthenticationDialog = () => {
-    form.setValue('totpCode', '');
-    form.setValue('backupCode', '');
-
-    setIsTwoFactorAuthenticationDialogOpen(false);
-  };
-
-  const onToggleTwoFactorAuthenticationMethodClick = () => {
-    const method = twoFactorAuthenticationMethod === 'totp' ? 'backup' : 'totp';
-
-    if (method === 'totp') {
-      form.setValue('backupCode', '');
-    }
-
-    if (method === 'backup') {
-      form.setValue('totpCode', '');
-    }
-
-    setTwoFactorAuthenticationMethod(method);
-  };
 
   const onSignInWithPasskey = async () => {
     if (!browserSupportsWebAuthn()) {
@@ -218,13 +177,11 @@ export const SignInForm = ({
     }
   };
 
-  const onFormSubmit = async ({ email, password, totpCode, backupCode }: TSignInFormSchema) => {
+  const onFormSubmit = async ({ email, password }: TSignInFormSchema) => {
     try {
       await authClient.emailPassword.signIn({
         email,
         password,
-        totpCode,
-        backupCode,
         captchaToken: captchaToken ?? undefined,
         redirectPath,
       });
@@ -232,16 +189,6 @@ export const SignInForm = ({
       console.log(err);
 
       const error = AppError.parseError(err);
-
-      if (error.code === 'TWO_FACTOR_MISSING_CREDENTIALS') {
-        setIsTwoFactorAuthenticationDialogOpen(true);
-
-        // Turnstile tokens are single-use. Clear the consumed one so the
-        // dialog's fresh widget mounts cleanly and the dialog can't be
-        // submitted with the stale token before a new one is issued.
-        setCaptchaToken(null);
-        return;
-      }
 
       if (error.code === AuthenticationErrorCode.UnverifiedEmail) {
         await navigate('/unverified-account');
@@ -260,10 +207,6 @@ export const SignInForm = ({
         .with(
           AuthenticationErrorCode.InvalidCredentials,
           () => msg`The email or password provided is incorrect.`,
-        )
-        .with(
-          AuthenticationErrorCode.InvalidTwoFactorCode,
-          () => msg`The two-factor authentication code provided is incorrect.`,
         )
         .with(
           AppErrorCode.INVALID_CAPTCHA,
@@ -493,104 +436,8 @@ export const SignInForm = ({
             {!isPasskeyLoading && <KeyRoundIcon className="-ml-1 mr-1 h-5 w-5" />}
             <Trans>Passkey</Trans>
           </Button>
-        </fieldset>
-      </form>
-
-      <Dialog
-        open={isTwoFactorAuthenticationDialogOpen}
-        onOpenChange={onCloseTwoFactorAuthenticationDialog}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              <Trans>Two-Factor Authentication</Trans>
-            </DialogTitle>
-          </DialogHeader>
-
-          <form onSubmit={form.handleSubmit(onFormSubmit)}>
-            <fieldset disabled={isSubmitting}>
-              {twoFactorAuthenticationMethod === 'totp' && (
-                <FormField
-                  control={form.control}
-                  name="totpCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Token</FormLabel>
-                      <FormControl>
-                        <PinInput {...field} value={field.value ?? ''} maxLength={6}>
-                          {Array(6)
-                            .fill(null)
-                            .map((_, i) => (
-                              <PinInputGroup key={i}>
-                                <PinInputSlot index={i} />
-                              </PinInputGroup>
-                            ))}
-                        </PinInput>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {twoFactorAuthenticationMethod === 'backup' && (
-                <FormField
-                  control={form.control}
-                  name="backupCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        <Trans>Backup Code</Trans>
-                      </FormLabel>
-                      <FormControl>
-                        <Input type="text" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {turnstileSiteKey && (
-                <div className="mt-4">
-                  <Turnstile
-                    ref={twoFactorTurnstileRef}
-                    siteKey={turnstileSiteKey}
-                    onSuccess={setCaptchaToken}
-                    onExpire={() => setCaptchaToken(null)}
-                    options={{
-                      size: 'flexible',
-                      appearance: 'interaction-only',
-                    }}
-                  />
-                </div>
-              )}
-
-              <DialogFooter className="mt-4">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={onToggleTwoFactorAuthenticationMethodClick}
-                >
-                  {twoFactorAuthenticationMethod === 'totp' ? (
-                    <Trans>Use Backup Code</Trans>
-                  ) : (
-                    <Trans>Use Authenticator</Trans>
-                  )}
-                </Button>
-
-                <Button
-                  type="submit"
-                  loading={isSubmitting}
-                  disabled={Boolean(turnstileSiteKey) && !captchaToken}
-                >
-                  {isSubmitting ? <Trans>Signing in...</Trans> : <Trans>Sign In</Trans>}
-                </Button>
-              </DialogFooter>
-            </fieldset>
-          </form>
-        </DialogContent>
-      </Dialog>
+      </fieldset>
     </Form>
   );
+};
 };

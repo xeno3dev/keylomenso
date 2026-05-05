@@ -104,12 +104,6 @@ export const DocumentGlobalAuthActionTooltip = () => (
             configured via their settings
           </Trans>
         </li>
-        <li>
-          <Trans>
-            <strong>Require 2FA</strong> - The recipient must have an account and 2FA enabled via
-            their settings
-          </Trans>
-        </li>
 
         <li>
           <Trans>

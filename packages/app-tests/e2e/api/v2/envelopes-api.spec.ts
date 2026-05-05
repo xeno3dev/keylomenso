@@ -160,7 +160,6 @@ test.describe('API V2 Envelopes', () => {
             email: userA.email,
             name: 'Name',
             role: RecipientRole.SIGNER,
-            accessAuth: ['TWO_FACTOR_AUTH'],
             signingOrder: 1,
             fields: [
               {
@@ -1229,7 +1228,6 @@ test.describe('API V2 Envelopes', () => {
       expect(createRes.ok()).toBeTruthy();
       const createResponse = (await createRes.json()) as TCreateEnvelopeResponse;
 
-      // Create recipient with empty email and TWO_FACTOR_AUTH action auth
       const createRecipientsRequest: TCreateEnvelopeRecipientsRequest = {
         envelopeId: createResponse.id,
         data: [
@@ -1237,7 +1235,6 @@ test.describe('API V2 Envelopes', () => {
             email: '',
             name: 'Recipient With Auth',
             role: RecipientRole.SIGNER,
-            accessAuth: [DocumentAccessAuth.TWO_FACTOR_AUTH],
           },
         ],
       };

@@ -9,9 +9,6 @@ import { prisma } from '@documenso/prisma';
 import { Alert, AlertDescription, AlertTitle } from '@documenso/ui/primitives/alert';
 import { Button } from '@documenso/ui/primitives/button';
 
-import { DisableAuthenticatorAppDialog } from '~/components/forms/2fa/disable-authenticator-app-dialog';
-import { EnableAuthenticatorAppDialog } from '~/components/forms/2fa/enable-authenticator-app-dialog';
-import { ViewRecoveryCodesDialog } from '~/components/forms/2fa/view-recovery-codes-dialog';
 import { PasswordForm } from '~/components/forms/password';
 import { SettingsHeader } from '~/components/general/settings-header';
 import { appMetaTags } from '~/utils/meta';
@@ -73,59 +70,6 @@ export default function SettingsSecurity({ loaderData }: Route.ComponentProps) {
 
           <hr className="mt-6 border-border/50" />
         </>
-      )}
-
-      <Alert
-        className="mt-6 flex flex-col justify-between p-6 sm:flex-row sm:items-center"
-        variant="neutral"
-      >
-        <div className="mb-4 sm:mb-0">
-          <AlertTitle>
-            <Trans>Two factor authentication</Trans>
-          </AlertTitle>
-
-          <AlertDescription className="mr-4">
-            {hasEmailPasswordAccount ? (
-              <Trans>
-                Add an authenticator to serve as a secondary authentication method when signing in,
-                or when signing documents.
-              </Trans>
-            ) : (
-              <Trans>
-                Add an authenticator to serve as a secondary authentication method for signing
-                documents.
-              </Trans>
-            )}
-          </AlertDescription>
-        </div>
-
-        {user.twoFactorEnabled ? (
-          <DisableAuthenticatorAppDialog />
-        ) : (
-          <EnableAuthenticatorAppDialog />
-        )}
-      </Alert>
-
-      {user.twoFactorEnabled && (
-        <Alert
-          className="mt-6 flex flex-col justify-between p-6 sm:flex-row sm:items-center"
-          variant="neutral"
-        >
-          <div className="mb-4 sm:mb-0">
-            <AlertTitle>
-              <Trans>Recovery codes</Trans>
-            </AlertTitle>
-
-            <AlertDescription className="mr-4">
-              <Trans>
-                Two factor authentication recovery codes are used to access your account in the
-                event that you lose access to your authenticator app.
-              </Trans>
-            </AlertDescription>
-          </div>
-
-          <ViewRecoveryCodesDialog />
-        </Alert>
       )}
 
       <Alert

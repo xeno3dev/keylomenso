@@ -14,7 +14,6 @@ import { oauthRoute } from './routes/oauth';
 import { passkeyRoute } from './routes/passkey';
 import { sessionRoute } from './routes/session';
 import { signOutRoute } from './routes/sign-out';
-import { twoFactorRoute } from './routes/two-factor';
 import type { HonoAuthContext } from './types/context';
 
 // Note: You must chain routes for Hono RPC client to work.
@@ -47,9 +46,8 @@ export const auth = new Hono<HonoAuthContext>()
   .route('/', accountRoute)
   .route('/callback', callbackRoute)
   .route('/oauth', oauthRoute)
-  .route('/email-password', emailPasswordRoute)
   .route('/passkey', passkeyRoute)
-  .route('/two-factor', twoFactorRoute);
+  .route('/email-password', emailPasswordRoute);
 
 /**
  * Handle errors.

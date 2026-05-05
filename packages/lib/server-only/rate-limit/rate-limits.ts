@@ -22,13 +22,6 @@ export const resendVerifyEmailRateLimit = createRateLimit({
   window: '1h',
 });
 
-export const request2FAEmailRateLimit = createRateLimit({
-  action: 'auth.request-2fa-email',
-  max: 5,
-  globalMax: 20,
-  window: '15m',
-});
-
 // ---- Auth (Tier 2 - Unauthenticated) ----
 
 export const loginRateLimit = createRateLimit({

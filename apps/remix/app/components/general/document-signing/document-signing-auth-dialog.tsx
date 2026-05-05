@@ -19,7 +19,6 @@ import {
   DialogTitle,
 } from '@documenso/ui/primitives/dialog';
 
-import { DocumentSigningAuth2FA } from './document-signing-auth-2fa';
 import { DocumentSigningAuthAccount } from './document-signing-auth-account';
 import { DocumentSigningAuthPasskey } from './document-signing-auth-passkey';
 import { DocumentSigningAuthPassword } from './document-signing-auth-password';
@@ -140,7 +139,6 @@ export const DocumentSigningAuthDialog = ({
                       {match(authType)
                         .with(DocumentAuth.ACCOUNT, () => <Trans>Account</Trans>)
                         .with(DocumentAuth.PASSKEY, () => <Trans>Passkey</Trans>)
-                        .with(DocumentAuth.TWO_FACTOR_AUTH, () => <Trans>2FA</Trans>)
                         .with(DocumentAuth.PASSWORD, () => <Trans>Password</Trans>)
                         .exhaustive()}
                     </div>
@@ -150,9 +148,6 @@ export const DocumentSigningAuthDialog = ({
                         .with(DocumentAuth.ACCOUNT, () => <Trans>Sign in to your account</Trans>)
                         .with(DocumentAuth.PASSKEY, () => (
                           <Trans>Use your passkey for authentication</Trans>
-                        ))
-                        .with(DocumentAuth.TWO_FACTOR_AUTH, () => (
-                          <Trans>Enter your 2FA code</Trans>
                         ))
                         .with(DocumentAuth.PASSWORD, () => <Trans>Enter your password</Trans>)
                         .exhaustive()}
@@ -178,13 +173,6 @@ export const DocumentSigningAuthDialog = ({
             )
             .with({ documentAuthType: DocumentAuth.PASSKEY }, () => (
               <DocumentSigningAuthPasskey
-                open={open}
-                onOpenChange={onOpenChange}
-                onReauthFormSubmit={onReauthFormSubmit}
-              />
-            ))
-            .with({ documentAuthType: DocumentAuth.TWO_FACTOR_AUTH }, () => (
-              <DocumentSigningAuth2FA
                 open={open}
                 onOpenChange={onOpenChange}
                 onReauthFormSubmit={onReauthFormSubmit}

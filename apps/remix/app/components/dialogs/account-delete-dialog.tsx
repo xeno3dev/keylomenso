@@ -29,11 +29,6 @@ export type AccountDeleteDialogProps = {
 export const AccountDeleteDialog = ({ className }: AccountDeleteDialogProps) => {
   const { user } = useSession();
 
-  const { _ } = useLingui();
-  const { toast } = useToast();
-
-  const hasTwoFactorAuthentication = user.twoFactorEnabled;
-
   const [enteredEmail, setEnteredEmail] = useState<string>('');
 
   const { mutateAsync: deleteAccount, isPending: isDeletingAccount } =
@@ -99,14 +94,6 @@ export const AccountDeleteDialog = ({ className }: AccountDeleteDialogProps) => 
                   </AlertDescription>
                 </Alert>
 
-                {hasTwoFactorAuthentication && (
-                  <Alert variant="destructive">
-                    <AlertDescription className="selection:bg-red-100">
-                      <Trans>Disable Two Factor Authentication before deleting your account.</Trans>
-                    </AlertDescription>
-                  </Alert>
-                )}
-
                 <DialogDescription>
                   <Trans>
                     Documenso will delete{' '}
@@ -117,31 +104,29 @@ export const AccountDeleteDialog = ({ className }: AccountDeleteDialogProps) => 
                 </DialogDescription>
               </DialogHeader>
 
-              {!hasTwoFactorAuthentication && (
-                <div>
-                  <Label>
-                    <Trans>
-                      Please type{' '}
-                      <span className="text-muted-foreground font-semibold">{user.email}</span> to
-                      confirm.
-                    </Trans>
-                  </Label>
+              <div>
+                <Label>
+                  <Trans>
+                    Please type{' '}
+                    <span className="text-muted-foreground font-semibold">{user.email}</span> to
+                    confirm.
+                  </Trans>
+                </Label>
 
-                  <Input
-                    type="text"
-                    className="mt-2"
-                    aria-label="Confirm Email"
-                    value={enteredEmail}
-                    onChange={(e) => setEnteredEmail(e.target.value)}
-                  />
-                </div>
-              )}
+                <Input
+                  type="text"
+                  className="mt-2"
+                  aria-label="Confirm Email"
+                  value={enteredEmail}
+                  onChange={(e) => setEnteredEmail(e.target.value)}
+                />
+              </div>
               <DialogFooter>
                 <Button
                   onClick={onDeleteAccount}
                   loading={isDeletingAccount}
                   variant="destructive"
-                  disabled={hasTwoFactorAuthentication || enteredEmail !== user.email}
+                  disabled={enteredEmail !== user.email}
                 >
                   {isDeletingAccount ? _(msg`Deleting account...`) : _(msg`Confirm Deletion`)}
                 </Button>

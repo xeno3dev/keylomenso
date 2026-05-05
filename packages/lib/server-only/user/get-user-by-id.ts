@@ -18,7 +18,6 @@ export const getUserById = async ({ id }: GetUserByIdOptions) => {
       emailVerified: true,
       roles: true,
       disabled: true,
-      twoFactorEnabled: true,
       signature: true,
     },
   });

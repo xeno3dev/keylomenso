@@ -36,7 +36,6 @@ import {
 import { Input } from '@documenso/ui/primitives/input';
 
 import { useEmbedSigningContext } from '~/components/embed/embed-signing-context';
-import { AccessAuth2FAForm } from '~/components/general/document-signing/access-auth-2fa-form';
 import { DocumentSigningDisclosure } from '~/components/general/document-signing/document-signing-disclosure';
 
 import { useRequiredDocumentSigningAuthContext } from './document-signing-auth-provider';
@@ -101,9 +100,6 @@ export const DocumentSigningCompleteDialog = ({
 
   const [showDialog, setShowDialog] = useState(false);
 
-  const [showTwoFactorForm, setShowTwoFactorForm] = useState(false);
-  const [twoFactorValidationError, setTwoFactorValidationError] = useState<string | null>(null);
-
   const { derivedRecipientAccessAuth } = useRequiredDocumentSigningAuthContext();
 
   const { isNameLocked, isEmailLocked } = useEmbedSigningContext() || {};
@@ -125,11 +121,6 @@ export const DocumentSigningCompleteDialog = ({
   });
 
   const isComplete = useMemo(() => !fieldsContainUnsignedRequiredField(fields), [fields]);
-
-  const completionRequires2FA = useMemo(
-    () => derivedRecipientAccessAuth.includes('TWO_FACTOR_AUTH'),
-    [derivedRecipientAccessAuth],
-  );
 
   const handleOpenChange = (open: boolean) => {
     if (form.formState.isSubmitting || !isComplete) {
@@ -164,12 +155,6 @@ export const DocumentSigningCompleteDialog = ({
         recipientOverridePayload = recipientPayload;
       }
 
-      // Check if 2FA is required
-      if (completionRequires2FA && !data.accessAuthOptions) {
-        setShowTwoFactorForm(true);
-        return;
-      }
-
       const nextSigner =
         allowDictateNextSigner && data.name && data.email
           ? { name: data.name, email: data.email }
@@ -177,28 +162,8 @@ export const DocumentSigningCompleteDialog = ({
 
       await onSignatureComplete(nextSigner, data.accessAuthOptions, recipientOverridePayload);
     } catch (error) {
-      const err = AppError.parseError(error);
-
-      if (AppErrorCode.TWO_FACTOR_AUTH_FAILED === err.code) {
-        // This was a 2FA validation failure - show the 2FA dialog again with error
-        form.setValue('accessAuthOptions', undefined);
-
-        setTwoFactorValidationError('Invalid verification code. Please try again.');
-        setShowTwoFactorForm(true);
-
-        return;
-      }
+      // Handle any other errors here
     }
-  };
-
-  const onTwoFactorFormSubmit = (validatedAuthOptions: TRecipientAccessAuth) => {
-    form.setValue('accessAuthOptions', validatedAuthOptions);
-
-    setShowTwoFactorForm(false);
-    setTwoFactorValidationError(null);
-
-    // Now trigger the form submission with auth options
-    void form.handleSubmit(onFormSubmit)();
   };
 
   return (
@@ -398,14 +363,7 @@ export const DocumentSigningCompleteDialog = ({
           </>
         )}
 
-        {showTwoFactorForm && (
-          <AccessAuth2FAForm
-            token={recipient.token}
-            error={twoFactorValidationError}
-            onSubmit={onTwoFactorFormSubmit}
-          />
-        )}
-      </DialogContent>
+        </DialogContent>
     </Dialog>
   );
 };

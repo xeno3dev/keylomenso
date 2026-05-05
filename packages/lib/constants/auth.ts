@@ -47,8 +47,6 @@ export const USER_SECURITY_AUDIT_LOG_MAP: Record<string, string> = {
   ORGANISATION_SSO_LINK: 'Linked account to organisation',
   ORGANISATION_SSO_UNLINK: 'Unlinked account from organisation',
   ACCOUNT_PROFILE_UPDATE: 'Profile updated',
-  AUTH_2FA_DISABLE: '2FA Disabled',
-  AUTH_2FA_ENABLE: '2FA Enabled',
   PASSKEY_CREATED: 'Passkey created',
   PASSKEY_DELETED: 'Passkey deleted',
   PASSKEY_UPDATED: 'Passkey updated',
@@ -59,7 +57,6 @@ export const USER_SECURITY_AUDIT_LOG_MAP: Record<string, string> = {
   SIGN_IN: 'Signed In',
   SIGN_IN_FAIL: 'Sign in attempt failed',
   SIGN_IN_PASSKEY_FAIL: 'Passkey sign in failed',
-  SIGN_IN_2FA_FAIL: 'Sign in 2FA attempt failed',
 };
 
 /**

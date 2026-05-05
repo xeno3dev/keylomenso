@@ -33,7 +33,6 @@ import { AdminOrganisationCreateDialog } from '~/components/dialogs/admin-organi
 import { AdminUserDeleteDialog } from '~/components/dialogs/admin-user-delete-dialog';
 import { AdminUserDisableDialog } from '~/components/dialogs/admin-user-disable-dialog';
 import { AdminUserEnableDialog } from '~/components/dialogs/admin-user-enable-dialog';
-import { AdminUserResetTwoFactorDialog } from '~/components/dialogs/admin-user-reset-two-factor-dialog';
 import { GenericErrorLayout } from '~/components/general/generic-error-layout';
 import { AdminOrganisationsTable } from '~/components/tables/admin-organisations-table';
 import { AdminUserTeamsTable } from '~/components/tables/admin-user-teams-table';
@@ -249,7 +248,6 @@ const AdminUserPage = ({ user }: { user: TGetUserResponse }) => {
       </Accordion>
 
       <div className="mt-16 flex flex-col gap-4">
-        {user && user.twoFactorEnabled && <AdminUserResetTwoFactorDialog user={user} />}
         {user && user.disabled && <AdminUserEnableDialog userToEnable={user} />}
         {user && !user.disabled && <AdminUserDisableDialog userToDisable={user} />}
         {user && <AdminUserDeleteDialog user={user} />}

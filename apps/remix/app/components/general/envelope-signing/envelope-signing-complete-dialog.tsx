@@ -127,15 +127,13 @@ export const EnvelopeSignerCompleteDialog = () => {
     } catch (err) {
       const error = AppError.parseError(err);
 
-      if (error.code !== AppErrorCode.TWO_FACTOR_AUTH_FAILED) {
-        toast({
-          title: t`Something went wrong`,
-          description: t`We were unable to submit this document at this time. Please try again later.`,
-          variant: 'destructive',
-        });
+      toast({
+        title: t`Something went wrong`,
+        description: t`We were unable to submit this document at this time. Please try again later.`,
+        variant: 'destructive',
+      });
 
-        onDocumentError?.();
-      }
+      onDocumentError?.();
 
       throw err;
     }

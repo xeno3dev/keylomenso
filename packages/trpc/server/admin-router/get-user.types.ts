@@ -13,7 +13,6 @@ export const ZGetUserResponseSchema = UserSchema.pick({
   emailVerified: true,
   roles: true,
   disabled: true,
-  twoFactorEnabled: true,
   signature: true,
 });
 

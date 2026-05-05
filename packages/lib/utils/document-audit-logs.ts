@@ -515,21 +515,6 @@ export const formatDocumentAuditLogAction = (
       you: msg`You rejected the document`,
       user: msg`${user} rejected the document`,
     }))
-    .with({ type: DOCUMENT_AUDIT_LOG_TYPE.DOCUMENT_ACCESS_AUTH_2FA_REQUESTED }, () => ({
-      anonymous: msg`Recipient requested a 2FA token for the document`,
-      you: msg`You requested a 2FA token for the document`,
-      user: msg`${user} requested a 2FA token for the document`,
-    }))
-    .with({ type: DOCUMENT_AUDIT_LOG_TYPE.DOCUMENT_ACCESS_AUTH_2FA_VALIDATED }, () => ({
-      anonymous: msg`Recipient validated a 2FA token for the document`,
-      you: msg`You validated a 2FA token for the document`,
-      user: msg`${user} validated a 2FA token for the document`,
-    }))
-    .with({ type: DOCUMENT_AUDIT_LOG_TYPE.DOCUMENT_ACCESS_AUTH_2FA_FAILED }, () => ({
-      anonymous: msg`Recipient failed to validate a 2FA token for the document`,
-      you: msg`You failed to validate a 2FA token for the document`,
-      user: msg`${user} failed to validate a 2FA token for the document`,
-    }))
     .with({ type: DOCUMENT_AUDIT_LOG_TYPE.EMAIL_SENT }, ({ data }) => {
       if (data.isResending) {
         return {
