@@ -50,6 +50,7 @@ export type CompleteDocumentWithTokenOptions = {
     email?: string;
     name?: string;
   };
+  accessAuthOptions?: Record<string, unknown>;
 };
 
 export const completeDocumentWithToken = async ({

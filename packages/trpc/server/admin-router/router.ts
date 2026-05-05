@@ -23,6 +23,7 @@ import { getAdminTeamRoute } from './get-admin-team';
 import { getEmailDomainRoute } from './get-email-domain';
 import { getUserRoute } from './get-user';
 import { promoteMemberToOwnerRoute } from './promote-member-to-owner';
+import { reregisterEmailDomainRoute } from './reregister-email-domain';
 import { resealDocumentRoute } from './reseal-document';
 import { resyncLicenseRoute } from './resync-license';
 import { updateAdminOrganisationRoute } from './update-admin-organisation';
@@ -31,6 +32,7 @@ import { updateRecipientRoute } from './update-recipient';
 import { updateSiteSettingRoute } from './update-site-setting';
 import { updateSubscriptionClaimRoute } from './update-subscription-claim';
 import { updateUserRoute } from './update-user';
+import { swapOrganisationSubscriptionRoute } from './swap-organisation-subscription';
 
 export const adminRouter = router({
   organisation: {

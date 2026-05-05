@@ -8,7 +8,6 @@ import { ZAuthenticationResponseJSONSchema } from './webauthn';
 export const ZDocumentAuthTypesSchema = z.enum([
   'ACCOUNT',
   'PASSKEY',
-  'PASSWORD',
   'EXPLICIT_NONE',
 ]);
 
@@ -27,21 +26,6 @@ const ZDocumentAuthPasskeySchema = z.object({
   authenticationResponse: ZAuthenticationResponseJSONSchema,
   tokenReference: z.string().min(1),
 });
-
-const ZDocumentAuthPasswordSchema = z.object({
-  type: z.literal(DocumentAuth.PASSWORD),
-  password: z.string().min(1),
-});
-
-/**
- * All the document auth methods for both accessing and actioning.
- */
-export const ZDocumentAuthMethodsSchema = z.discriminatedUnion('type', [
-  ZDocumentAuthAccountSchema,
-  ZDocumentAuthExplicitNoneSchema,
-  ZDocumentAuthPasskeySchema,
-  ZDocumentAuthPasswordSchema,
-]);
 
 /**
  * The global document access auth methods.
@@ -63,13 +47,11 @@ export const ZDocumentAccessAuthTypesSchema = z
 export const ZDocumentActionAuthSchema = z.discriminatedUnion('type', [
   ZDocumentAuthAccountSchema,
   ZDocumentAuthPasskeySchema,
-  ZDocumentAuthPasswordSchema,
 ]);
 export const ZDocumentActionAuthTypesSchema = z
   .enum([
     DocumentAuth.ACCOUNT,
     DocumentAuth.PASSKEY,
-    DocumentAuth.PASSWORD,
   ])
   .describe(
     'The type of authentication required for the recipient to sign the document. This field is restricted to Enterprise plan users only.',
@@ -95,14 +77,12 @@ export const ZRecipientAccessAuthTypesSchema = z
 export const ZRecipientActionAuthSchema = z.discriminatedUnion('type', [
   ZDocumentAuthAccountSchema,
   ZDocumentAuthPasskeySchema,
-  ZDocumentAuthPasswordSchema,
   ZDocumentAuthExplicitNoneSchema,
 ]);
 export const ZRecipientActionAuthTypesSchema = z
   .enum([
     DocumentAuth.ACCOUNT,
     DocumentAuth.PASSKEY,
-    DocumentAuth.PASSWORD,
     DocumentAuth.EXPLICIT_NONE,
   ])
   .describe('The type of authentication required for the recipient to sign the document.');
@@ -167,6 +147,15 @@ export const ZRecipientAuthOptionsSchema = z.preprocess(
     actionAuth: z.array(ZRecipientActionAuthTypesSchema),
   }),
 );
+
+/**
+ * All the document auth methods for both accessing and actioning.
+ */
+export const ZDocumentAuthMethodsSchema = z.discriminatedUnion('type', [
+  ZDocumentAuthAccountSchema,
+  ZDocumentAuthExplicitNoneSchema,
+  ZDocumentAuthPasskeySchema,
+]);
 
 /**
  * Utility function to process the auth value.

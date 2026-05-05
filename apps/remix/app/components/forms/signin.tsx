@@ -437,7 +437,7 @@ export const SignInForm = ({
             <Trans>Passkey</Trans>
           </Button>
       </fieldset>
-    </Form>
+     </form>
+     </Form>
   );
-};
 };

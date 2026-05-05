@@ -5,7 +5,6 @@ import { match } from 'ts-pattern';
 
 import { prisma } from '@documenso/prisma';
 
-import { verifyPassword } from '../2fa/verify-password';
 import { AppError, AppErrorCode } from '../../errors/app-error';
 import type { TDocumentAuth, TDocumentAuthMethods } from '../../types/document-auth';
 import { DocumentAuth } from '../../types/document-auth';
@@ -109,16 +108,6 @@ export const isRecipientAuthorized = async ({
         userId,
         authenticationResponse,
         tokenReference,
-      });
-    })
-    .with({ type: DocumentAuth.PASSWORD }, async ({ password }) => {
-      if (!userId) {
-        return false;
-      }
-
-      return await verifyPassword({
-        userId,
-        password,
       });
     })
     .with({ type: DocumentAuth.EXPLICIT_NONE }, () => {

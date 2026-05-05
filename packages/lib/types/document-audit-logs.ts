@@ -44,7 +44,12 @@ export const ZDocumentAuditLogTypeSchema = z.enum([
   'DOCUMENT_RECIPIENT_REJECTED', // When a recipient rejects the document.
    'DOCUMENT_RECIPIENT_COMPLETED', // When a recipient completes all their required tasks for the document.
   'DOCUMENT_RECIPIENT_EXPIRED', // When a recipient's signing window expires.
-  'DOCUMENT_SENT', // When the document transitions from DRAFT to PENDING.
+   'DOCUMENT_SENT', // When the document transitions from DRAFT to PENDING.
+   'DOCUMENT_MOVED_TO_TEAM', // When the document is moved to a team.
+   'DOCUMENT_DELEGATED_OWNER_CREATED', // When a delegated owner is created.
+   'DOCUMENT_TITLE_UPDATED', // When the document title is updated.
+   'DOCUMENT_EXTERNAL_ID_UPDATED', // When the document external ID is updated.
+]);
 
 export const ZDocumentAuditLogEmailTypeSchema = z.enum([
   'SIGNING_REQUEST',
