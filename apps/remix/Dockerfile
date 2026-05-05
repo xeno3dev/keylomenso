@@ -4,9 +4,6 @@ WORKDIR /app
 # install deps first for better caching
 COPY package*.json ./
 
-# npm version required by your deps
-RUN npm install -g npm@11.13.0
-
 RUN npm ci
 
 COPY . .
@@ -16,8 +13,6 @@ FROM node:22-alpine AS production-dependencies-env
 WORKDIR /app
 
 COPY package*.json ./
-
-RUN npm install -g npm@11.13.0
 
 RUN npm ci --omit=dev
 
