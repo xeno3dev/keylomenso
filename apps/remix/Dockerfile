@@ -9,7 +9,9 @@ COPY apps/remix/package*.json ./apps/remix/
 
 # Install all dependencies including devDependencies
 WORKDIR /app
-RUN npm install --ignore-engines --legacy-peer-deps
+RUN npm install --ignore-engines --legacy-peer-deps --omit=optional 2>&1 | grep -v "playwright" || true
+# Remove playwright to save space (not needed for production build)
+RUN rm -rf /app/node_modules/playwright* /app/node_modules/@playwright* 2>/dev/null || true
 WORKDIR /app/apps/remix
 
 # Now copy source code (excluding node_modules)
