@@ -15,7 +15,7 @@ COPY apps/remix/app ./apps/remix/app
 COPY apps/remix/public ./apps/remix/public
 COPY apps/remix/tsconfig.json ./apps/remix/
 COPY packages ./packages
-COPY prisma ./prisma
+COPY packages/prisma ./packages/prisma
 
 # Set PATH to include node_modules/.bin
 ENV PATH="/app/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
