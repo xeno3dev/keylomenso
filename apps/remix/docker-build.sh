@@ -1,18 +1,16 @@
 #!/bin/sh
 set -e
 
-# Ensure node_modules/.bin is in PATH
-export PATH="/app/node_modules/.bin:$PATH"
-
-# Run from /app/apps/remix directory
+# Run from /app/apps/remix where vite.config.ts is located
 cd /app/apps/remix
 
-# Build the app with Vite (React Router plugin is configured in vite.config.ts)
-echo "Building with Vite..."
-NODE_ENV=production vite build
+# Build the app - react-router build handles vite config automatically
+echo "Building with react-router..."
+NODE_ENV=production npx react-router build
 
 # Build the server with rollup
 echo "Building server with rollup..."
-NODE_ENV=production rollup -c rollup.config.mjs
+NODE_ENV=production npx rollup -c rollup.config.mjs
 
 echo "Build complete!"
+
