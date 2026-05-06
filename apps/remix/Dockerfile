@@ -25,8 +25,8 @@ RUN cd packages/prisma && npx prisma generate
 
 # Build remix app
 WORKDIR /app/apps/remix
-RUN NODE_ENV=production npx vite build && \
-    NODE_ENV=production npx rollup -c rollup.config.mjs
+COPY docker-build.sh ./
+RUN chmod +x docker-build.sh && ./docker-build.sh
 
 
 FROM node:22.11.0-alpine
