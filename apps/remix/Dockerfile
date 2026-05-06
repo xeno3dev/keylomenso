@@ -25,8 +25,7 @@ RUN cd packages/prisma && npx prisma generate
 
 # Build remix app
 WORKDIR /app/apps/remix
-RUN react-router typegen && \
-    NODE_ENV=production react-router build && \
+RUN NODE_ENV=production npx react-router build && \
     NODE_ENV=production npx rollup -c rollup.config.mjs
 
 
