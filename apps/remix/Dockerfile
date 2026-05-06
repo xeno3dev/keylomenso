@@ -23,10 +23,9 @@ ENV PATH="/app/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/b
 # Generate prisma client
 RUN cd packages/prisma && npx prisma generate
 
-# Build remix app - skip typecheck to avoid TS errors in build
-WORKDIR /app/apps/remix
-RUN cross-env NODE_ENV=production react-router build && \
-    npm run build:server
+# Build remix app - run from /app so Vite can find plugins
+WORKDIR /app
+RUN npm run build --workspace=@documenso/remix
 
 
 FROM node:22.11.0-alpine
