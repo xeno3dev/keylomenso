@@ -1,5 +1,5 @@
-FROM node:22.11.0-alpine AS base
-RUN apk add --no-cache bash coreutils
+FROM node:22.11.0 AS base
+RUN apt-get update && apt-get install -y bash coreutils
 
 WORKDIR /app/
 
@@ -37,7 +37,7 @@ RUN cd /app/apps/remix && \
     NODE_ENV=production npx rollup -c rollup.config.mjs && \
     cp server/main.js build/server/main.js
 
-FROM node:22.11.0-alpine
+FROM node:22.11.0
 WORKDIR /app/
 
 ENV NODE_ENV=production
