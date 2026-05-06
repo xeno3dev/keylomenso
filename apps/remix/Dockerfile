@@ -9,9 +9,12 @@ COPY apps/remix/package*.json ./apps/remix/
 
 # Install all dependencies including devDependencies
 WORKDIR /app
-RUN npm install --ignore-engines --legacy-peer-deps --omit=optional 2>&1 | grep -v "playwright" || true
+# Remove package-lock.json to avoid npm optional dependency bug
+RUN rm -f package-lock.json && npm install --ignore-engines --legacy-peer-deps --omit=optional 2>&1 | grep -v "playwright" || true
 # Remove playwright to save space (not needed for production build)
 RUN rm -rf /app/node_modules/playwright* /app/node_modules/@playwright* 2>/dev/null || true
+# Reinstall with optional deps (rollup native binary)
+RUN npm install --ignore-engines --legacy-peer-deps 2>&1 | grep -v "playwright" || true
 WORKDIR /app/apps/remix
 
 # Now copy source code (excluding node_modules)
