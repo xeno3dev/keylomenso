@@ -17,21 +17,26 @@ RUN rm -rf /app/node_modules/playwright* /app/node_modules/@playwright* 2>/dev/n
 WORKDIR /app/apps/remix
 
 # Now copy source code (excluding node_modules)
-COPY apps/remix/app ./apps/remix/app
-COPY apps/remix/public ./apps/remix/public
-COPY apps/remix/tsconfig.json ./apps/remix/
-COPY apps/remix/.bin ./apps/remix/.bin
-COPY apps/remix/docker-build.sh ./apps/remix/docker-build.sh
-COPY apps/remix/rollup.config.mjs ./apps/remix/rollup.config.mjs
-COPY apps/remix/vite.config.ts ./apps/remix/vite.config.ts
+# Note: WORKDIR is /app/apps/remix, so ./app means /app/apps/remix/app
+COPY apps/remix/app ./app
+COPY apps/remix/public ./public
+COPY apps/remix/tsconfig.json ./tsconfig.json
+COPY apps/remix/.bin ./.bin
+COPY apps/remix/docker-build.sh ./docker-build.sh
+COPY apps/remix/rollup.config.mjs ./rollup.config.mjs
+COPY apps/remix/vite.config.ts ./vite.config.ts
+
+# Copy shared packages to /app/packages (monorepo root), not nested under apps/remix
+WORKDIR /app
 COPY packages ./packages
 COPY packages/prisma ./packages/prisma
+WORKDIR /app/apps/remix
 
 # Set PATH to include node_modules/.bin
 ENV PATH="/app/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
-# Generate prisma client
-RUN cd packages/prisma && npx prisma generate
+# Generate prisma client (needs to run from packages/prisma)
+RUN cd /app/packages/prisma && npx prisma generate
 
 # Build remix app
 WORKDIR /app/apps/remix
@@ -47,9 +52,8 @@ ENV NODE_ENV=production
 COPY package*.json ./
 RUN npm ci --omit=dev --ignore-engines --legacy-peer-deps
 
-# Copy built remix app
+# Copy built remix app and config
 COPY --from=base /app/apps/remix/build ./apps/remix/build
-COPY --from=base /app/apps/remix/build/server ./apps/remix/build/server
 COPY --from=base /app/apps/remix/package.json ./apps/remix/package.json
 COPY --from=base /app/apps/remix/public ./apps/remix/public
 
