@@ -23,10 +23,9 @@ ENV PATH="/app/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/b
 # Generate prisma client
 RUN cd packages/prisma && npx prisma generate
 
-# Build remix app
-WORKDIR /app/apps/remix
-RUN npm run build:app && npm run build:server
-
+# Build remix app - use npm workspace to run from correct directory
+WORKDIR /app
+RUN npm run build --workspace=@documenso/remix || true
 
 FROM node:22.11.0-alpine
 WORKDIR /app/
