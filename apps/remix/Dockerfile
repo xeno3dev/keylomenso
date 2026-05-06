@@ -31,7 +31,7 @@ RUN cd packages/prisma && npx prisma generate
 
 # Build remix app
 WORKDIR /app/apps/remix
-RUN bash docker-build.sh
+RUN echo "Starting build..." && ls -la && bash docker-build.sh && echo "Build completed successfully"
 WORKDIR /app
 
 FROM node:22.11.0-alpine
