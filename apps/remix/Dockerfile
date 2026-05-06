@@ -19,6 +19,7 @@ WORKDIR /app/apps/remix
 # Now copy source code (excluding node_modules)
 # Note: WORKDIR is /app/apps/remix, so ./app means /app/apps/remix/app
 COPY apps/remix/app ./app
+COPY apps/remix/server ./server
 COPY apps/remix/public ./public
 COPY apps/remix/tsconfig.json ./tsconfig.json
 COPY apps/remix/.bin ./.bin
