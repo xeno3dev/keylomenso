@@ -8,7 +8,9 @@ COPY package*.json ./
 COPY apps/remix/package*.json ./apps/remix/
 
 # Install all dependencies including devDependencies
+WORKDIR /app
 RUN npm install --ignore-engines --legacy-peer-deps
+WORKDIR /app/apps/remix
 
 # Now copy source code (excluding node_modules)
 COPY apps/remix/app ./apps/remix/app
@@ -16,8 +18,8 @@ COPY apps/remix/public ./apps/remix/public
 COPY apps/remix/tsconfig.json ./apps/remix/
 COPY apps/remix/.bin ./apps/remix/.bin
 COPY apps/remix/docker-build.sh ./apps/remix/docker-build.sh
-COPY apps/remix/rollup.config.mjs ./apps/remix/ 2>/dev/null || true
-COPY apps/remix/vite.config.ts ./apps/remix/ 2>/dev/null || true
+COPY apps/remix/rollup.config.mjs ./apps/remix/rollup.config.mjs
+COPY apps/remix/vite.config.ts ./apps/remix/vite.config.ts
 COPY packages ./packages
 COPY packages/prisma ./packages/prisma
 
