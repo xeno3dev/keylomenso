@@ -30,9 +30,7 @@ ENV PATH="/app/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/b
 RUN cd packages/prisma && npx prisma generate
 
 # Build remix app
-WORKDIR /app/apps/remix
-RUN bash docker-build.sh
-WORKDIR /app
+RUN bash /app/apps/remix/docker-build.sh
 
 FROM node:22.11.0-alpine
 WORKDIR /app/
