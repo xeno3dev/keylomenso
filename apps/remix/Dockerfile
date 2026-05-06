@@ -12,8 +12,8 @@ WORKDIR /app
 RUN npm install --ignore-engines --legacy-peer-deps 2>&1 | grep -v "playwright" || true
 # Rebuild optional dependencies (fixes rollup native module)
 RUN npm rebuild rollup 2>&1 | grep -v "playwright" || true
-# Remove playwright to save space (not needed for production build)
-RUN rm -rf /app/node_modules/playwright* /app/node_modules/@playwright* 2>/dev/null || true
+# Remove playwright browsers to save space (keep package for type checking)
+RUN npx playwright uninstall 2>/dev/null || true
 WORKDIR /app/apps/remix
 
 # Now copy source code (excluding node_modules)
