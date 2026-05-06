@@ -25,8 +25,7 @@ RUN cd packages/prisma && npx prisma generate
 
 # Build remix app
 WORKDIR /app/apps/remix
-COPY docker-build.sh ./
-RUN chmod +x docker-build.sh && ./docker-build.sh
+RUN npm run build:app && npm run build:server
 
 
 FROM node:22.11.0-alpine
