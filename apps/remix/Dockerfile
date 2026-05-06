@@ -23,9 +23,10 @@ ENV PATH="/app/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/b
 # Generate prisma client
 RUN cd packages/prisma && npx prisma generate
 
-# Build remix app - run from /app so Vite can find plugins
-WORKDIR /app
-RUN npm run build --workspace=@documenso/remix
+# Build remix app
+WORKDIR /app/apps/remix
+RUN NODE_ENV=production npx vite build && \
+    NODE_ENV=production npx rollup -c rollup.config.mjs
 
 
 FROM node:22.11.0-alpine
