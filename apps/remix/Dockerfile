@@ -26,6 +26,8 @@ COPY apps/remix/.bin ./.bin
 COPY apps/remix/docker-build.sh ./docker-build.sh
 COPY apps/remix/rollup.config.mjs ./rollup.config.mjs
 COPY apps/remix/vite.config.ts ./vite.config.ts
+# Lingui config needed at app root for vite plugin
+COPY lingui.config.ts ./lingui.config.ts
 
 # Copy shared packages to /app/packages (monorepo root), not nested under apps/remix
 WORKDIR /app
