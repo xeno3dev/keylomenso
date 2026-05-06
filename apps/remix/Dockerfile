@@ -30,7 +30,12 @@ ENV PATH="/app/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/b
 RUN cd packages/prisma && npx prisma generate
 
 # Build remix app
-RUN chmod +x /app/apps/remix/docker-build.sh && bash /app/apps/remix/docker-build.sh
+RUN cd /app/apps/remix && \
+    echo "Building with react-router..." && \
+    NODE_ENV=production npx react-router build && \
+    echo "Building server with rollup..." && \
+    NODE_ENV=production npx rollup -c rollup.config.mjs && \
+    cp server/main.js build/server/main.js
 
 FROM node:22.11.0-alpine
 WORKDIR /app/
