@@ -12,5 +12,8 @@ NODE_ENV=production npx react-router build
 echo "Building server with rollup..."
 NODE_ENV=production npx rollup -c rollup.config.mjs
 
-echo "Build complete!"
+# Copy over the entry point for the server.
+cp server/main.js build/server/main.js
+
+# Copy over all web.js translations
 

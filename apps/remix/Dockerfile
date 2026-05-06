@@ -14,6 +14,10 @@ RUN npm install --ignore-engines --legacy-peer-deps
 COPY apps/remix/app ./apps/remix/app
 COPY apps/remix/public ./apps/remix/public
 COPY apps/remix/tsconfig.json ./apps/remix/
+COPY apps/remix/.bin ./apps/remix/.bin
+COPY apps/remix/docker-build.sh ./apps/remix/docker-build.sh
+COPY apps/remix/rollup.config.mjs ./apps/remix/ 2>/dev/null || true
+COPY apps/remix/vite.config.ts ./apps/remix/ 2>/dev/null || true
 COPY packages ./packages
 COPY packages/prisma ./packages/prisma
 
@@ -23,9 +27,10 @@ ENV PATH="/app/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/b
 # Generate prisma client
 RUN cd packages/prisma && npx prisma generate
 
-# Build remix app - use npm workspace to run from correct directory
+# Build remix app
+WORKDIR /app/apps/remix
+RUN bash docker-build.sh
 WORKDIR /app
-RUN npm run build --workspace=@documenso/remix || true
 
 FROM node:22.11.0-alpine
 WORKDIR /app/
@@ -37,7 +42,7 @@ RUN npm ci --omit=dev --ignore-engines --legacy-peer-deps
 
 # Copy built remix app
 COPY --from=base /app/apps/remix/build ./apps/remix/build
-COPY --from=base /app/apps/remix/server ./apps/remix/server
+COPY --from=base /app/apps/remix/build/server ./apps/remix/build/server
 COPY --from=base /app/apps/remix/package.json ./apps/remix/package.json
 COPY --from=base /app/apps/remix/public ./apps/remix/public
 
