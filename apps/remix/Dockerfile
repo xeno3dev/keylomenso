@@ -41,7 +41,7 @@ RUN cd /app/packages/prisma && npx prisma generate
 
 WORKDIR /app/apps/remix
 
-# Add /app/node_modules/.bin to PATH so react-router and other binariess are found
+# Add /app/node_modules/.bin to PATH so react-router and other binaries are found
 ENV PATH="/app/node_modules/.bin:${PATH}"
 
 # Build remix app (skip typecheck to avoid playwright/typescript errors in Docker build)
@@ -54,18 +54,10 @@ WORKDIR /app/
 
 ENV NODE_ENV=production
 
-COPY package*.json ./
-RUN npm ci --omit=dev --ignore-engines --legacy-peer-deps
-
-# Copy built remix app and config
-COPY --from=base /app/apps/remix/build ./apps/remix/build
-COPY --from=base /app/apps/remix/package.json ./apps/remix/package.json
-COPY --from=base /app/apps/remix/public ./apps/remix/public
-
-# Copy shared packages
-COPY --from=base /app/packages ./packages
+# Copy everything from base stage
+COPY --from=base /app ./
 
 EXPOSE 3000
 
-# Override CMD to run server directly (with:env needs devDependency dotenv-cli)
+# Run server directly (with:env needs devDependency dotenv-cli)
 CMD ["node", "apps/remix/build/server/main.js"]
