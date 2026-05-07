@@ -41,9 +41,11 @@ RUN cd /app/packages/prisma && npx prisma generate
 
 WORKDIR /app/apps/remix
 
+# Add /app/node_modules/.bin to PATH so react-router and other binariess are found
+ENV PATH="/app/node_modules/.bin:${PATH}"
+
 # Build remix app (skip typecheck to avoid playwright/typescript errors in Docker build)
-# Use full path to cross-env since node_modules/.bin is at /app/node_modules/.bin
-RUN /app/node_modules/.bin/cross-env NODE_ENV=production react-router build && npm run build:server
+RUN cross-env NODE_ENV=production react-router build && npm run build:server
 # Copy server/main.js to build/server/main.js if it exists
 RUN test -f server/main.js && cp server/main.js build/server/main.js || echo "server/main.js not found, skipping copy"
 
