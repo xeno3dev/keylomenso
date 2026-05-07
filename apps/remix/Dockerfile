@@ -29,20 +29,19 @@ COPY apps/remix/vite.config.ts ./vite.config.ts
 # Lingui config needed at app root for vite plugin
 COPY lingui.config.ts ./lingui.config.ts
 
-# Copy shared packages to /app/packages (monorepo root), not nested under apps/remix
 WORKDIR /app
+
 COPY packages ./packages
-COPY packages/prisma ./packages/prisma
-WORKDIR /app/apps/remix
 
-# Set PATH to include node_modules/.bin
-ENV PATH="/app/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+# Compile translations before build
+RUN npm run translate:compile
 
-# Generate prisma client (needs to run from packages/prisma)
+# Generate Prisma client
 RUN cd /app/packages/prisma && npx prisma generate
 
-# Build remix app (skip typecheck to avoid playwright/typescript errors in Docker build)
 WORKDIR /app/apps/remix
+
+# Build remix app (skip typecheck to avoid playwright/typescript errors in Docker build)
 RUN cross-env NODE_ENV=production react-router build && npm run build:server
 # Copy server/main.js to build/server/main.js if it exists
 RUN test -f server/main.js && cp server/main.js build/server/main.js || echo "server/main.js not found, skipping copy"
