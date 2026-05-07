@@ -6,7 +6,6 @@ WORKDIR /app/
 # Copy full monorepo structure (excluding node_modules) for proper npm workspaces resolution
 # Copy root config files
 COPY package*.json ./
-COPY tsconfig.json ./
 COPY turbo.json ./
 COPY .npmrc ./
 
