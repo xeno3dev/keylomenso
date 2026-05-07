@@ -19,9 +19,7 @@ COPY packages ./packages/
 COPY lingui.config.ts ./lingui.config.ts
 
 # Install all dependencies (npm workspaces will hoist to /app/node_modules)
-RUN npm install --ignore-engines --legacy-peer-deps 2>&1 | grep -v "playwright" || true
-# Rebuild optional dependencies (fixes rollup native module)
-RUN npm rebuild rollup 2>&1 | grep -v "playwright" || true
+RUN npm install --ignore-engines --legacy-peer-deps
 # Remove playwright browsers to save space (keep package for type checking)
 RUN npx playwright uninstall 2>/dev/null || true
 
