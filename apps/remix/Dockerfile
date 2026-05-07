@@ -3,21 +3,27 @@ RUN apt-get update && apt-get install -y bash coreutils
 
 WORKDIR /app/
 
-# Copy package files first for better caching
+# Copy all package.json files first so npm workspaces can properly hoist dependencies
 COPY package*.json ./
 COPY apps/remix/package*.json ./apps/remix/
+# Create minimal package.json stubs for all workspace packages so npm can resolve workspaces
+RUN mkdir -p packages/prisma packages/lib packages/ui packages/trpc packages/api
+COPY packages/prisma/package.json ./packages/prisma/
+COPY packages/lib/package.json ./packages/lib/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/trpc/package.json ./packages/trpc/
+COPY packages/api/package.json ./packages/api/
 
-# Install all dependencies including devDependencies
+# Install all dependencies including devDependencies (npm workspaces will hoist to /app/node_modules)
 WORKDIR /app
 RUN npm install --ignore-engines --legacy-peer-deps 2>&1 | grep -v "playwright" || true
 # Rebuild optional dependencies (fixes rollup native module)
 RUN npm rebuild rollup 2>&1 | grep -v "playwright" || true
 # Remove playwright browsers to save space (keep package for type checking)
 RUN npx playwright uninstall 2>/dev/null || true
-WORKDIR /app/apps/remix
 
 # Now copy source code (excluding node_modules)
-# Note: WORKDIR is /app/apps/remix, so ./app means /app/apps/remix/app
+WORKDIR /app/apps/remix
 COPY apps/remix/app ./app
 COPY apps/remix/server ./server
 COPY apps/remix/public ./public
@@ -31,6 +37,7 @@ WORKDIR /app
 # Lingui config needed at workspace root for translate:compile
 COPY lingui.config.ts ./lingui.config.ts
 
+# Copy full packages dir with source code
 COPY packages ./packages
 
 # Compile translations before build
