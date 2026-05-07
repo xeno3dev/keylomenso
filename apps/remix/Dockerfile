@@ -67,4 +67,5 @@ COPY --from=base /app/packages ./packages
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start", "--workspace=@documenso/remix"]
+# Override CMD to run server directly (with:env needs devDependency dotenv-cli)
+CMD ["node", "apps/remix/build/server/main.js"]
